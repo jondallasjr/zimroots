@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
-import { twiml as Twiml } from 'twilio';
+import pkg from 'twilio';
+const { twiml: Twiml } = pkg;
 
 import { getSession, updateSession, appendHistory } from './session.js';
 import { chat } from './claude.js';

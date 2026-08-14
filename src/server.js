@@ -4,7 +4,7 @@ import pkg from 'twilio';
 const { twiml: Twiml } = pkg;
 
 import { getSession, updateSession, appendHistory } from './session.js';
-import { chat } from './claude.js';
+import { chat, validateAnthropicModel } from './claude.js';
 import { handleReader } from './flows/reader.js';
 import { handlePoster } from './flows/poster.js';
 
@@ -98,6 +98,18 @@ async function handleMessage(phone, message) {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`ZimRoots server running on port ${PORT}`);
-});
+
+async function startServer() {
+  try {
+    const { model } = await validateAnthropicModel();
+    console.log(`Anthropic model validated: ${model}`);
+    app.listen(PORT, () => {
+      console.log(`ZimRoots server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Anthropic configuration error:', error.message);
+    process.exit(1);
+  }
+}
+
+startServer();

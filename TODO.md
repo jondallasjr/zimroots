@@ -13,6 +13,7 @@ Status markers: `[ ]` pending · `[~]` in progress · `[x]` done
 - [x] Create seed data SQL
 - [ ] Create Supabase project and run `schema.sql`
 - [ ] Configure `.env` with real API keys (Twilio, Anthropic, Supabase, OpenAI)
+- [ ] Resolve Anthropic model availability issue (`claude-sonnet-4-20250514` returns 404)
 - [ ] Set up Twilio WhatsApp sandbox
 - [ ] Run `seed.sql` and generate embeddings for seed entities
 

@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const MODEL_NAME = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
 
 const SYSTEM_PROMPT = `You are ZimRoots, an AI-powered directory assistant for Harare's informal economy. You operate through WhatsApp. You help people in two ways:
 
@@ -60,6 +61,30 @@ Action objects:
 IMPORTANT: Always include both "reply" and "action" keys. The reply is what gets sent to the user via WhatsApp. The action tells the server what to do.`;
 
 /**
+ * Validate that the configured Anthropic model is available for this key.
+ */
+export async function validateAnthropicModel() {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is missing. Add it to your environment before starting the app.');
+  }
+
+  const available = await anthropic.models.list();
+  const ids = available.data.map((model) => model.id);
+
+  if (!ids.includes(MODEL_NAME)) {
+    throw new Error(
+      `ANTHROPIC_MODEL "${MODEL_NAME}" is not available for this API key. ` +
+      `Available models: ${ids.slice(0, 10).join(', ')}`
+    );
+  }
+
+  return {
+    model: MODEL_NAME,
+    availableModels: ids,
+  };
+}
+
+/**
  * Send a message to Claude and get a structured response.
  */
 export async function chat(history, userMessage, context = {}) {
@@ -72,7 +97,7 @@ export async function chat(history, userMessage, context = {}) {
   ];
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: MODEL_NAME,
     max_tokens: 1024,
     system: SYSTEM_PROMPT,
     messages,

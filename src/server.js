@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import crypto from 'node:crypto';
 import express from 'express';
 import pkg from 'twilio';
 const { twiml: Twiml } = pkg;
@@ -9,13 +10,52 @@ import { handleReader } from './flows/reader.js';
 import { handlePoster } from './flows/poster.js';
 
 const app = express();
+const META_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN;
+const META_APP_SECRET = process.env.META_APP_SECRET;
+
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  },
+}));
 
 // Health check
 app.get('/', (_req, res) => {
   res.json({ status: 'ok', service: 'ZimRoots Alpha v0' });
 });
+
+function verifyMetaSignature(req, signature) {
+  if (!META_APP_SECRET || !signature || !req.rawBody) {
+    return !META_APP_SECRET; // allow local dev without secret
+  }
+
+  const expected = `sha256=${crypto
+    .createHmac('sha256', META_APP_SECRET)
+    .update(req.rawBody)
+    .digest('hex')}`;
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expected),
+      Buffer.from(signature)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function handleMetaVerify(req, res) {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode === 'subscribe' && token === META_VERIFY_TOKEN) {
+    return res.status(200).send(String(challenge || ''));
+  }
+
+  return res.status(403).send('Verification failed');
+}
 
 async function handleWebhook(req, res) {
   console.log('Webhook headers:', req.headers);
@@ -59,6 +99,16 @@ function extractMetaMessage(payload) {
 }
 
 async function handleMetaWebhook(req, res) {
+  const signature = req.headers['x-hub-signature-256'] || req.headers['x-hub-signature'];
+
+  if (META_APP_SECRET && !verifyMetaSignature(req, signature)) {
+    console.error('Meta webhook signature mismatch', {
+      received: signature,
+      rawBody: req.rawBody ? req.rawBody.toString().slice(0, 300) : '<missing raw body>',
+    });
+    return res.status(403).send('Invalid WhatsApp signature');
+  }
+
   const payload = req.body || {};
   const { from, body } = extractMetaMessage(payload);
 
@@ -79,15 +129,16 @@ async function handleMetaWebhook(req, res) {
 
   console.log(`[${from}] → ${reply}`);
 
-  const twimlResponse = new Twiml.MessagingResponse();
-  twimlResponse.message(reply);
-  res.type('text/xml').send(twimlResponse.toString());
+  // Meta webhooks expect a 200 OK quickly; outbound reply is sent via the WhatsApp API later.
+  res.status(200).send('OK');
 }
 
 // Twilio-compatible WhatsApp webhook
 app.post('/webhook', handleWebhook);
 
-// Meta WhatsApp Cloud webhook (real incoming webhook format)
+// Meta verification challenge and incoming webhook callbacks
+app.get('/whatsapp', handleMetaVerify);
+app.get('/webhook/whatsapp', handleMetaVerify);
 app.post('/whatsapp', handleMetaWebhook);
 app.post('/webhook/whatsapp', handleMetaWebhook);
 

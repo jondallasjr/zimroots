@@ -17,8 +17,7 @@ app.get('/', (_req, res) => {
   res.json({ status: 'ok', service: 'ZimRoots Alpha v0' });
 });
 
-// Twilio WhatsApp webhook
-app.post('/webhook', async (req, res) => {
+async function handleWebhook(req, res) {
   const from = req.body.From;   // e.g. "whatsapp:+2637XXXXXXXX"
   const body = req.body.Body?.trim();
 
@@ -45,7 +44,11 @@ app.post('/webhook', async (req, res) => {
   const twimlResponse = new Twiml.MessagingResponse();
   twimlResponse.message(reply);
   res.type('text/xml').send(twimlResponse.toString());
-});
+}
+
+// Twilio WhatsApp webhook
+app.post('/webhook', handleWebhook);
+app.post('/webhook/whatsapp', handleWebhook);
 
 /**
  * Main message router.

@@ -4,6 +4,23 @@ Chronological record of project progress, decisions, and context.
 
 ---
 
+## 2026-08-14 — Claude model access issue discovered
+
+**What happened:**
+- Initial Claude API call failed with a `404 not_found_error` while using `claude-sonnet-4-20250514`.
+- The failure occurs before any prompt is processed and blocks the WhatsApp bot from responding.
+
+**Likely cause:**
+- The configured Anthropic API key/account does not have access to the requested model alias, or the model is not enabled for this workspace/project.
+- The model is hard-coded in `src/claude.js` and needs validation against the active Anthropic account.
+
+**Next steps:**
+1. Verify model access in the Anthropic dashboard for the active API key.
+2. Switch to a supported model alias, or centralize the model in environment config.
+3. Re-test the webhook once the model is confirmed valid.
+
+---
+
 ## 2026-03-21 — Alpha v0 Scaffolding Complete
 
 **What happened:**

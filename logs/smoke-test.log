@@ -1,0 +1,40 @@
+2026-08-14T23:27:53.290Z Starting smoke tests
+2026-08-14T23:27:53.294Z Running test: greeting
+2026-08-14T23:27:58.032Z Result greeting: PASS status=200 elapsedMs=4737
+2026-08-14T23:27:58.032Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Hey! 👋 Welcome to ZimRoots.
+
+What can I help you with?
+
+🔍 *Search* — Find a business, product, service, event, or job
+📝 *Post* — List your business, product, service, event, or job</Message></Response>
+2026-08-14T23:27:58.033Z Running test: search
+2026-08-14T23:28:10.133Z Result search: PASS status=200 elapsedMs=12099
+2026-08-14T23:28:10.133Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>
+2026-08-14T23:28:10.134Z Running test: post
+2026-08-14T23:28:17.203Z Result post: PASS status=200 elapsedMs=7069
+2026-08-14T23:28:17.205Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Great! I can help you list your phone. First, what's your name?</Message></Response>
+2026-08-14T23:28:17.206Z Smoke test summary written to /home/mg/Documents/Work/JonDallas.ai/zimroots/logs/smoke-test-summary.json
+2026-08-14T23:31:10.506Z Starting smoke tests
+2026-08-14T23:31:10.507Z Running test: greeting
+2026-08-14T23:31:16.593Z Result greeting: PASS status=200 elapsedMs=6085
+2026-08-14T23:31:16.593Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>I need to get your name first so I can set up your listing. 😊
+
+What's your name?</Message></Response>
+2026-08-14T23:31:16.594Z Running test: search
+2026-08-14T23:31:20.680Z Result search: PASS status=200 elapsedMs=4086
+2026-08-14T23:31:20.681Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Got it! Let me search for mechanics in Harare for you.</Message></Response>
+2026-08-14T23:31:20.681Z Running test: post
+2026-08-14T23:31:25.278Z Result post: PASS status=200 elapsedMs=4597
+2026-08-14T23:31:25.279Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Great! I can help you list your phone. First, what's your name?</Message></Response>
+2026-08-14T23:31:25.280Z Smoke test summary written to /home/mg/Documents/Work/JonDallas.ai/zimroots/logs/smoke-test-summary.json
+2026-08-14T23:40:44.613Z Starting smoke tests
+2026-08-14T23:40:44.615Z Running test: greeting
+2026-08-14T23:40:49.228Z Result greeting: FAIL status=200 elapsedMs=4613
+2026-08-14T23:40:49.228Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>
+2026-08-14T23:40:49.228Z Running test: search
+2026-08-14T23:40:55.973Z Result search: FAIL status=200 elapsedMs=6744
+2026-08-14T23:40:55.975Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>
+2026-08-14T23:40:55.975Z Running test: post
+2026-08-14T23:41:00.000Z Result post: FAIL status=200 elapsedMs=4024
+2026-08-14T23:41:00.001Z Body: <?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>
+2026-08-14T23:41:00.003Z Smoke test summary written to /home/mg/Documents/Work/JonDallas.ai/zimroots/logs/smoke-test-summary.json

@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-08-14T23:41:00.002Z",
+  "results": [
+    {
+      "name": "greeting",
+      "payload": {
+        "From": "whatsapp:+263712345678",
+        "Body": "hello"
+      },
+      "ok": false,
+      "status": 200,
+      "elapsedMs": 4613,
+      "response": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>"
+    },
+    {
+      "name": "search",
+      "payload": {
+        "From": "whatsapp:+263712345678",
+        "Body": "find a mechanic in Harare"
+      },
+      "ok": false,
+      "status": 200,
+      "elapsedMs": 6744,
+      "response": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>"
+    },
+    {
+      "name": "post",
+      "payload": {
+        "From": "whatsapp:+263712345678",
+        "Body": "I want to sell my phone"
+      },
+      "ok": false,
+      "status": 200,
+      "elapsedMs": 4024,
+      "response": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>Sorry, something went wrong on my end. Please try again in a moment.</Message></Response>"
+    }
+  ],
+  "passed": false,
+  "failures": 3
+}

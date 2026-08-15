@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "admin": "node admin/cli.js"
+    "admin": "node admin/cli.js",
+    "check:anthropic": "node scripts/check-anthropic.js",
+    "test:smoke": "node scripts/smoke-test.js"
   },
   "keywords": [],
   "author": "",

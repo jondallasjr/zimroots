@@ -18,6 +18,8 @@ app.get('/', (_req, res) => {
 });
 
 async function handleWebhook(req, res) {
+  console.log('Webhook headers:', req.headers);
+  console.log('Webhook body:', req.body);
   const from = req.body.From;   // e.g. "whatsapp:+2637XXXXXXXX"
   const body = req.body.Body?.trim();
 

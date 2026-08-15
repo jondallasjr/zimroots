@@ -10,10 +10,23 @@ import { handleReader } from './flows/reader.js';
 import { handlePoster } from './flows/poster.js';
 
 const app = express();
-const META_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN;
-const META_APP_SECRET = process.env.META_APP_SECRET;
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || process.env.META_ACCESS_TOKEN;
+const META_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
+const META_APP_SECRET = process.env.META_APP_SECRET || process.env.WHATSAPP_APP_SECRET;
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || process.env.META_ACCESS_TOKEN;
 const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.META_PHONE_NUMBER_ID;
+
+console.log('Loaded WhatsApp env:', {
+  hasVerifyToken: Boolean(META_VERIFY_TOKEN),
+  hasAppSecret: Boolean(META_APP_SECRET),
+  hasWhatsAppToken: Boolean(WHATSAPP_TOKEN),
+  hasPhoneNumberId: Boolean(WHATSAPP_PHONE_NUMBER_ID),
+  source: {
+    verifyToken: process.env.WHATSAPP_VERIFY_TOKEN ? 'WHATSAPP_VERIFY_TOKEN' : process.env.META_VERIFY_TOKEN ? 'META_VERIFY_TOKEN' : 'missing',
+    appSecret: process.env.WHATSAPP_APP_SECRET ? 'WHATSAPP_APP_SECRET' : process.env.META_APP_SECRET ? 'META_APP_SECRET' : 'missing',
+    token: process.env.WHATSAPP_API_TOKEN ? 'WHATSAPP_API_TOKEN' : process.env.WHATSAPP_TOKEN ? 'WHATSAPP_TOKEN' : process.env.META_ACCESS_TOKEN ? 'META_ACCESS_TOKEN' : 'missing',
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ? 'WHATSAPP_PHONE_NUMBER_ID' : process.env.META_PHONE_NUMBER_ID ? 'META_PHONE_NUMBER_ID' : 'missing',
+  },
+});
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({

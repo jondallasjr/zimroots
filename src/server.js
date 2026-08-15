@@ -12,6 +12,8 @@ import { handlePoster } from './flows/poster.js';
 const app = express();
 const META_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN;
 const META_APP_SECRET = process.env.META_APP_SECRET;
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || process.env.META_ACCESS_TOKEN;
+const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.META_PHONE_NUMBER_ID;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({
@@ -57,6 +59,42 @@ function handleMetaVerify(req, res) {
   return res.status(403).send('Verification failed');
 }
 
+function sendTwimlMessage(res, reply) {
+  const twimlResponse = new Twiml.MessagingResponse();
+  twimlResponse.message(reply);
+  res.type('text/xml').send(twimlResponse.toString());
+}
+
+async function sendMetaTextMessage(phone, message) {
+  if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
+    throw new Error('Missing WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID');
+  }
+
+  const response = await fetch(`https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: phone,
+      type: 'text',
+      text: {
+        body: message,
+      },
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(`WhatsApp send failed: ${JSON.stringify(payload)}`);
+  }
+
+  return payload;
+}
+
 async function handleWebhook(req, res) {
   console.log('Webhook headers:', req.headers);
   console.log('Webhook body:', req.body);
@@ -82,10 +120,8 @@ async function handleWebhook(req, res) {
 
   console.log(`[${phone}] → ${reply}`);
 
-  // Send reply via TwiML
-  const twimlResponse = new Twiml.MessagingResponse();
-  twimlResponse.message(reply);
-  res.type('text/xml').send(twimlResponse.toString());
+  // Twilio webhooks must respond with TwiML.
+  sendTwimlMessage(res, reply);
 }
 
 function extractMetaMessage(payload) {
@@ -129,8 +165,14 @@ async function handleMetaWebhook(req, res) {
 
   console.log(`[${from}] → ${reply}`);
 
-  // Meta webhooks expect a 200 OK quickly; outbound reply is sent via the WhatsApp API later.
-  res.status(200).send('OK');
+  try {
+    await sendMetaTextMessage(from, reply);
+    console.log(`[${from}] sent via Meta WhatsApp API`);
+    return res.status(200).send('OK');
+  } catch (error) {
+    console.error(`[${from}] Meta send failed:`, error);
+    return res.status(500).send('WhatsApp send failed');
+  }
 }
 
 // Twilio-compatible WhatsApp webhook

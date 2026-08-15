@@ -48,9 +48,48 @@ async function handleWebhook(req, res) {
   res.type('text/xml').send(twimlResponse.toString());
 }
 
-// Twilio WhatsApp webhook
+function extractMetaMessage(payload) {
+  const message = payload?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  if (!message) return { from: null, body: null };
+
+  return {
+    from: message.from,
+    body: message?.text?.body?.trim() || null,
+  };
+}
+
+async function handleMetaWebhook(req, res) {
+  const payload = req.body || {};
+  const { from, body } = extractMetaMessage(payload);
+
+  if (!from || !body) {
+    console.error('Meta WhatsApp webhook payload missing message data:', JSON.stringify(payload, null, 2));
+    return res.status(400).send('Missing WhatsApp message payload');
+  }
+
+  console.log(`[${from}] ${body}`);
+
+  let reply;
+  try {
+    reply = await handleMessage(from, body);
+  } catch (err) {
+    console.error(`[${from}] Error:`, err);
+    reply = "Sorry, something went wrong on my end. Please try again in a moment.";
+  }
+
+  console.log(`[${from}] → ${reply}`);
+
+  const twimlResponse = new Twiml.MessagingResponse();
+  twimlResponse.message(reply);
+  res.type('text/xml').send(twimlResponse.toString());
+}
+
+// Twilio-compatible WhatsApp webhook
 app.post('/webhook', handleWebhook);
-app.post('/webhook/whatsapp', handleWebhook);
+
+// Meta WhatsApp Cloud webhook (real incoming webhook format)
+app.post('/whatsapp', handleMetaWebhook);
+app.post('/webhook/whatsapp', handleMetaWebhook);
 
 /**
  * Main message router.
